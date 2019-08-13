@@ -1,0 +1,25 @@
+{
+  "name": "Webpack-fe-starter",
+  "version": "1.0.0",
+  "main": "core.js",
+  "author": "Alexander Loktiev",
+  "license": "MIT",
+  "scripts": {
+    "start": "webpack --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js"
+  },
+  "dependencies": {
+    "@types/jquery": "^3.3.31",
+    "copy-webpack-plugin": "^5.0.4",
+    "file-loader": "^4.2.0",
+    "html-loader": "^0.5.5",
+    "ts-loader": "^6.0.4",
+    "typescript": "^3.5.3",
+    "webpack": "^4.39.1",
+    "webpack-dev-server": "^3.8.0",
+    "webpack-merge": "^4.2.1"
+  },
+  "devDependencies": {
+    "webpack-cli": "^3.3.6"
+  }
+}
