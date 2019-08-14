@@ -6,8 +6,17 @@ module.exports = merge(common, {
     mode: 'development',
     devtool: 'inline-source-map',
     devServer: {
-        contentBase: path.join(__dirname, 'dist/pages/index.njk'),
-        compress: true,
-        port: 9000
+        contentBase: path.join(__dirname, 'dist/pages'),
+        hot: true,
+        writeToDisk: true,
+        watchContentBase: true,
+        open: true,
+        watchOptions: {
+            poll: true,
+            colors: true,
+            aggregateTimeout: 300,
+            ignored: ['dist', 'node_modules']
+        },
+        port: 8080,
     }
 });
