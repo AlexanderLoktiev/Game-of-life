@@ -9,6 +9,10 @@
     <title>Document</title>
 </head>
 <body>
-
+    <ul>
+        {% for item in range(0, 7) %}
+            {{ loop.index }}
+        {% endfor %}
+    </ul>
 </body>
 </html>

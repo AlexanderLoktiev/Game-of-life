@@ -1,6 +1,7 @@
-const path = require('path');
-const webpack = require('webpack');
-const CopyPlugin = require('copy-webpack-plugin');
+import path from 'path';
+import webpack from 'webpack';
+import { CopyPlugin } from 'copy-webpack-plugin';
+import NunjucksWebpackPlugin from 'nunjucks-webpack-plugin';
 
 module.exports = {
     entry: './src/base/ts/core.ts',
@@ -19,9 +20,17 @@ module.exports = {
         ]
     },
     plugins: [
-        new CopyPlugin([
-            { from: './src/pages', to: 'pages' },
-        ]),
+        // new CopyPlugin([
+        //     { from: './src/pages', to: 'pages' },
+        // ]),
+        new NunjucksWebpackPlugin({
+            templates: [
+                {
+                    from: "./src/pages/index.njk",
+                    to: "pages/index.html"
+                }
+            ]
+        }),
         new webpack.ProvidePlugin({
             jQuery: 'jquery',
             $: 'jquery',
