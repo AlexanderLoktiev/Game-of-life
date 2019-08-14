@@ -1,6 +1,6 @@
 import path from 'path';
 import webpack from 'webpack';
-import { CopyPlugin } from 'copy-webpack-plugin';
+import WatchExternalFilesPlugin from 'webpack-watch-files-plugin';
 import NunjucksWebpackPlugin from 'nunjucks-webpack-plugin';
 
 module.exports = {
@@ -16,7 +16,7 @@ module.exports = {
                 test: /\.ts?$/,
                 use: 'ts-loader',
                 exclude: /node_modules/
-            },
+            }
         ]
     },
     plugins: [
@@ -29,6 +29,12 @@ module.exports = {
                     from: "./src/pages/index.njk",
                     to: "pages/index.html"
                 }
+            ]
+        }),
+        new WatchExternalFilesPlugin({
+            files: [
+                './src/**/*.ts',
+                './src/**/*.njk'
             ]
         }),
         new webpack.ProvidePlugin({
