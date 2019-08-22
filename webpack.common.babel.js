@@ -2,6 +2,9 @@ import path from 'path';
 import webpack from 'webpack';
 import WatchExternalFilesPlugin from 'webpack-watch-files-plugin';
 import NunjucksWebpackPlugin from 'nunjucks-webpack-plugin';
+import test from './nunjucksFiles';
+
+console.log(1, test);
 
 module.exports = {
     entry: './src/base/ts/core.ts',
@@ -16,17 +19,13 @@ module.exports = {
                 test: /\.ts?$/,
                 use: 'ts-loader',
                 exclude: /node_modules/
-            }
-        ]
+            },]
     },
     plugins: [
-        // new CopyPlugin([
-        //     { from: './src/pages', to: 'pages' },
-        // ]),
         new NunjucksWebpackPlugin({
             templates: [
                 {
-                    from: "./src/pages/index.njk",
+                    from: "src/pages/index.njk",
                     to: "pages/index.html"
                 }
             ]
@@ -43,7 +42,4 @@ module.exports = {
             jquery: 'jquery'
         }),
     ],
-    resolve: {
-        extensions: [ '.tsx', '.ts', '.js' ]
-    },
 };

@@ -5,25 +5,36 @@
   "author": "Alexander Loktiev",
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server --config webpack.dev.babel.js",
-    "build": "webpack --config webpack.prod.babel.js"
+    "start": "node -r esm nunjucksFiles.js && webpack-dev-server --config webpack.dev.babel.js",
+    "build": "node -r esm nunjucksFiles.js && webpack --config webpack.prod.babel.js"
   },
   "dependencies": {
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "@babel/register": "^7.0.0",
     "@types/jquery": "^3.3.31",
+    "before-build-webpack": "^0.2.9",
     "copy-webpack-plugin": "^5.0.4",
+    "debug": "^4.1.1",
+    "esm": "^3.2.25",
     "file-loader": "^4.2.0",
     "html-loader": "^0.5.5",
+    "html-withimg-loader": "^0.1.16",
     "njk-html-loader": "^1.2.0",
     "nunjucks": "^3.2.0",
+    "nunjucks-isomorphic-loader": "^2.0.2",
+    "nunjucks-loader": "^3.0.0",
+    "nunjucks-webpack-loader": "^1.0.8",
     "nunjucks-webpack-plugin": "^5.0.0",
+    "posthtml-loader": "^1.0.1",
+    "recursive-readdir": "^2.2.2",
     "ts-loader": "^6.0.4",
+    "twig-html-loader": "^0.1.7",
     "typescript": "^3.5.3",
     "webpack": "^4.39.1",
     "webpack-dev-server": "^3.8.0",
     "webpack-merge": "^4.2.1",
+    "webpack-promise-shim-plugin": "^1.0.0",
     "webpack-watch-files-plugin": "^1.0.3"
   },
   "devDependencies": {
