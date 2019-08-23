@@ -1,35 +1,32 @@
 import path from 'path';
 import webpack from 'webpack';
 import WatchExternalFilesPlugin from 'webpack-watch-files-plugin';
-import NunjucksWebpackPlugin from 'nunjucks-webpack-plugin';
-import test from './nunjucksFiles';
-
-console.log(1, test);
+import NjkAllFiles from './njk-files';
 
 module.exports = {
     entry: './src/base/ts/core.ts',
-    mode: 'production',
-    output: {
+        mode: 'production',
+        output: {
         filename: 'js/bundle.js',
-        path: path.resolve(__dirname, "dist"),
+            path: path.resolve(__dirname, 'dist'),
+    },
+    resolveLoader: {
+        modules: ['node_modules', path.resolve(__dirname, 'loaders')]
     },
     module: {
         rules: [
             {
                 test: /\.ts?$/,
                 use: 'ts-loader',
-                exclude: /node_modules/
-            },]
+                exclude: [path.resolve(__dirname, 'node_modules')]
+            },
+            {
+                test: /\.(njk|nunjucks)$/,
+                loader: 'njk-source-loader'
+            }]
     },
     plugins: [
-        new NunjucksWebpackPlugin({
-            templates: [
-                {
-                    from: "src/pages/index.njk",
-                    to: "pages/index.html"
-                }
-            ]
-        }),
+        new NjkAllFiles().init(),
         new WatchExternalFilesPlugin({
             files: [
                 './src/**/*.ts',
@@ -42,4 +39,5 @@ module.exports = {
             jquery: 'jquery'
         }),
     ],
+    resolve: { extensions: ['.js', '.ts', '.njk'] },
 };

@@ -1,0 +1,7 @@
+{% macro items() %}
+    {% for item in range(0, 7) %}
+        <li>
+            <h2>title {{ loop.index }}</h2>
+        </li>
+    {% endfor %}
+{% endmacro %}
