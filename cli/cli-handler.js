@@ -1,40 +1,45 @@
 import path from "path";
 import fs from "fs";
-import prompts from "prompts";
+import readline from "readline";
 
 export default class CliGenerator {
    allFilesHeandler() {
-
+        this.jsGenerate();
+        this.templateGenerate();
+        this.styleGenerate();
     };
 
     templateGenerate(filepath = path.resolve(__dirname, '.src/components')) {
         console.log('template');
 
-        // const fileContent = "Hello World!";
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
 
-        // (async () => {
-        //     const response = await prompts({
-        //         type: 'string',
-        //         name: 'value',
-        //         message: 'Input template`s name'
-        //     });
-        //
-        //     console.log(response);
-        // })();
+        rl.question('Enter componet`s name: ', (name) => {
+            const fileContent = "Hello World!";
+                if (!fs.existsSync(name)){
+                    fs.mkdir(path.resolve(__dirname, `../src/components/${name}/`), null, () => {
+                        fs.writeFile(path.resolve(__dirname, `../src/components/${name}/${name}.njk`), fileContent, (err) => {
+                            if (err) throw err;
 
-        // fs.writeFile(filepath, fileContent, (err) => {
-        //     if (err) throw err;
-        //
-        //     console.log("The file was succesfully saved!");
-        // });
+                            console.log("The file was succesfully saved!");
+                        });
+                        rl.close();
+                    });
+                } else {
+                    console.error('Already exist');
+                }
+        });
     };
 
     styleGenerate() {
-
+        console.log('style');
     };
 
     jsGenerate() {
-
+        console.log('js');
     };
 }
 
