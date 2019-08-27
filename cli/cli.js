@@ -5,7 +5,7 @@ let params = {
     pointer: ' ▸ ',
     pointerColor: 'yellow',
     checked: ' ◉  ',
-    unchecked:' ◎  ',
+    unchecked: ' ◎  ',
     checkedColor: 'blue',
     msgCancel: 'No selected options!',
     msgCancelColor: 'orange',
@@ -16,19 +16,44 @@ let params = {
 };
 
 const cancelHandler = (options) => {
-    console.log('Cancel list, '+ options.length +' options selected');
+    console.log('Cancel list, ' + options.length + ' options selected');
     process.exit(0);
 };
 
 const cliGenerator = new CliGenerator();
 
-class Cli{
-    constructor() {
+class Cli {
+    constructor() {}
 
-    }
-
-    generateSubOptions(options) {
-
+    generateSubOptions(options, handler = (items) => {
+        if (items[0].text.toLowerCase() === 'component') {
+            this.generateSubOptions(['All files', 'Partial'], (items) => {
+                if (items[0].text.toLowerCase() === 'partial') {
+                    params.multiSelect = true;
+                    this.generateSubOptions(['Template', 'Styles', 'Js functionality'], (items) => {
+                        items.forEach((entry) => {
+                            switch (entry.text.toLowerCase()) {
+                                case 'template':
+                                    cliGenerator.templateGenerate();
+                                    break;
+                                case 'styles':
+                                    cliGenerator.styleGenerate();
+                                    break;
+                                case 'js functionality':
+                                    cliGenerator.jsGenerate();
+                                    break;
+                            }
+                        });
+                    })
+                } else {
+                    cliGenerator.allFilesHeandler();
+                }
+            });
+        } else {
+            console.log('t');
+            process.exit(0);
+        }
+    }) {
         const list = Select(params);
 
         options.forEach((entry) => {
@@ -37,48 +62,8 @@ class Cli{
 
         list.list();
 
-        list.on('select', function(options) {
-            if (options[0].text.toLowerCase() === 'component') {
-
-                const componentList = Select(params);
-
-                componentList.option('All files')
-                    .option('Partial')
-                    .list();
-
-                componentList.on('cancel', cancelHandler);
-
-                componentList.on('select', function(options) {
-                    if (options[0].text.toLowerCase() === 'partial') {
-                        params.multiSelect = true;
-                        const partialComponentList = Select(params);
-
-                        partialComponentList.option('Template')
-                            .option('Styles')
-                            .option('Js functionality')
-                            .list();
-
-                        partialComponentList.on('select', function(all) {
-
-                            console.log(all);
-                            // switch (options) {
-                            //     case options[0].text.toLowerCase() === 'template' :
-                            //         cliGenerator.templateGenerate();
-                            //         break;
-                            //     case options[0].text.toLowerCase() === 'styles' :
-                            //         cliGenerator.styleGenerate();
-                            //         break;
-                            //     case options[0].text.toLowerCase() === 'js functionality' :
-                            //         cliGenerator.jsGenerate();
-                            //         break;
-                            // }
-                        });
-                    }
-                });
-            } else {
-                console.log('t');
-                process.exit(0);
-            }
+        list.on('select', (items) => {
+            handler(items);
         });
 
         list.on('cancel', cancelHandler);
