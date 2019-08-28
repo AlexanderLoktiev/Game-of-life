@@ -31,27 +31,27 @@ class Cli {
                 if (items[0].text.toLowerCase() === 'partial') {
                     params.multiSelect = true;
                     this.generateSubOptions(['Template', 'Styles', 'Js functionality'], (items) => {
-                        items.forEach((entry) => {
-                            switch (entry.text.toLowerCase()) {
-                                case 'template':
-                                    cliGenerator.templateGenerate();
-                                    break;
-                                case 'styles':
-                                    cliGenerator.styleGenerate();
-                                    break;
-                                case 'js functionality':
-                                    cliGenerator.jsGenerate();
-                                    break;
-                            }
+                       const extStream = new Promise((resolve, reject) => {
+                           let exts = [];
+
+                           items.forEach((entry) => {
+                               entry.text.toLowerCase() === 'template' ? exts.push('njk') :
+                                   entry.text.toLowerCase() === 'styles' ? exts.push('scss') :
+                                       exts.push('ts');
+                           });
+                           resolve(exts);
+                       });
+
+                        extStream.then(exts => {
+                            cliGenerator.filesGenerate(exts);
                         });
                     })
                 } else {
-                    cliGenerator.allFilesHeandler();
+                    cliGenerator.filesGenerate(['njk', 'scss', 'ts']);
                 }
             });
         } else {
-            console.log('t');
-            process.exit(0);
+            cliGenerator.filesGenerate(['njk'], 'page');
         }
     }) {
         const list = Select(params);
