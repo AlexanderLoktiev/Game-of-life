@@ -3,44 +3,104 @@ import fs from "fs";
 import readline from "readline";
 
 export default class CliGenerator {
-   allFilesHeandler() {
-        this.jsGenerate();
-        this.templateGenerate();
-        this.styleGenerate();
-    };
+    constructor() {}
 
-    templateGenerate(filepath = path.resolve(__dirname, '.src/components')) {
-        console.log('template');
-
+    filesGenerate(extns, dir = 'component') {
         const rl = readline.createInterface({
             input: process.stdin,
             output: process.stdout
         });
 
-        rl.question('Enter componet`s name: ', (name) => {
-            const fileContent = "Hello World!";
-                if (!fs.existsSync(name)){
-                    fs.mkdir(path.resolve(__dirname, `../src/components/${name}/`), null, () => {
-                        fs.writeFile(path.resolve(__dirname, `../src/components/${name}/${name}.njk`), fileContent, (err) => {
-                            if (err) throw err;
 
-                            console.log("The file was succesfully saved!");
+        rl.question(`Enter ${dir}\`s name: `, (name) => {
+            if (extns.length === 3) {
+               const dirCreatingStream =  new Promise((resolve, reject) => {
+                   this.createDir(name, dir);
+                   resolve();
+                });
+
+                dirCreatingStream.then(() => {
+                    extns.forEach((ext) => {
+                        this.createFiles(name, ext, dir)
+                    });
+                });
+            } else {
+                if (!fs.existsSync(path.resolve(__dirname, `../src/${dir}s/${name}/`))) {
+                    const dirCreatingStream =  new Promise((resolve, reject) => {
+                        this.createDir(name, dir);
+                        resolve();
+                    });
+
+                    dirCreatingStream.then(() => {
+                        extns.forEach((ext) => {
+                            this.createFiles(name, ext, dir)
                         });
-                        rl.close();
                     });
                 } else {
-                    console.error('Already exist');
+                    extns.forEach((ext) => {
+                        this.createFiles(name, ext, dir)
+                    });
                 }
+            }
+
+            rl.close();
         });
     };
 
-    styleGenerate() {
-        console.log('style');
-    };
+    createFiles(name, ext, dir) {
+        if (fs.existsSync(path.resolve(__dirname, `../src/${dir}s/${name}/${name}.${ext}`))) {
+            console.error(`File ${name}.${ext} already exists`);
+            process.exit();
+        } else {
+            const fileContent = CliGenerator.fileContent(name, ext);
 
-    jsGenerate() {
-        console.log('js');
-    };
+            fs.writeFile(path.resolve(__dirname, `../src/${dir}s/${name}/${name}.${ext}`), fileContent, (err) => {
+                if (err) throw err;
+
+                console.log(`The file "${name}.${ext}" was succesfully saved!`);
+            });
+        }
+    }
+
+    createDir(name, dir) {
+        if (!fs.existsSync(path.resolve(__dirname, `../src/${dir}s/${name}/`))) {
+            fs.mkdir(path.resolve(__dirname, `../src/${dir}s/${name}/`), null, () => {
+                console.log(`Directory ${name} was created`);
+            });
+        } else {
+            console.error(`Directory ${name} already exists`);
+            process.exit();
+        }
+    }
+
+    static fileContent(name, ext) {
+        let fileContent;
+
+        switch (ext) {
+            case 'njk':
+                fileContent = `<section class="${name}">
+
+</section>`;
+                break;
+            case 'scss':
+                fileContent = `.${name} {
+    $this: &;
+}`;
+                break;
+            case 'ts':
+                fileContent = `export default class ${name.charAt(0).toUpperCase() + name.slice(1)} {
+    constructor() {
+        this.beforeInit();   
+     }
+                                                    
+    beforeInit() {}
+                                                    
+    init() {}
+}`;
+                break;
+        }
+        return fileContent;
+    }
 }
 
 
