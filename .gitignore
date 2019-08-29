@@ -5,4 +5,4 @@
 node_modules
 
 # Ignore build files.
-dist
+build
