@@ -6,7 +6,7 @@ module.exports = merge(common, {
     mode: 'development',
     devtool: 'inline-source-map',
     devServer: {
-        contentBase: path.join(__dirname, 'dist/pages'),
+        contentBase: path.join(__dirname, 'build/pages'),
         hot: true,
         writeToDisk: true,
         watchContentBase: true,
@@ -15,7 +15,7 @@ module.exports = merge(common, {
             poll: true,
             colors: true,
             aggregateTimeout: 300,
-            ignored: ['dist', 'node_modules']
+            ignored: ['build', 'node_modules']
         },
         port: 8080,
     }

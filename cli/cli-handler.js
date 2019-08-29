@@ -11,8 +11,13 @@ export default class CliGenerator {
             output: process.stdout
         });
 
-
         rl.question(`Enter ${dir}\`s name: `, (name) => {
+            if (!fs.existsSync(path.resolve(__dirname, `../src/components/`))) {
+                fs.mkdir(path.resolve(__dirname, `../src/components/`), null, () => {
+                    console.log(`Directory components was created`);
+                });
+            }
+
             if (extns.length === 3) {
                const dirCreatingStream =  new Promise((resolve, reject) => {
                    this.createDir(name, dir);
@@ -24,8 +29,8 @@ export default class CliGenerator {
                         this.createFiles(name, ext, dir)
                     });
                 });
-            } else {
-                if (!fs.existsSync(path.resolve(__dirname, `../src/${dir}s/${name}/`))) {
+            }
+            else if (!fs.existsSync(path.resolve(__dirname, `../src/${dir}s/${name}/`))) {
                     const dirCreatingStream =  new Promise((resolve, reject) => {
                         this.createDir(name, dir);
                         resolve();
@@ -41,7 +46,6 @@ export default class CliGenerator {
                         this.createFiles(name, ext, dir)
                     });
                 }
-            }
 
             rl.close();
         });
