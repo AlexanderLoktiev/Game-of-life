@@ -1,5 +1,6 @@
 import path from "path";
 import fs from "fs";
+import nunjucks from 'nunjucks';
 import NunjucksWebpackPlugin from 'nunjucks-webpack-plugin';
 
 export default class NjkAllFiles {
@@ -22,8 +23,12 @@ export default class NjkAllFiles {
     };
 
     init() {
+        const env = nunjucks.configure();
+        env.addGlobal('srcPath', __dirname);
+
         return new NunjucksWebpackPlugin({
-            templates: this.njkTemplates
+            templates: this.njkTemplates,
+            configure: env
         })
     }
 }

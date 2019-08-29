@@ -35,14 +35,9 @@ module.exports = {
             {
                 test: /\.scss$/,
                 use: [MiniCssExtractPlugin.loader,'css-loader', 'sass-loader'],
-            },
-            {
-                test: /\.(njk|nunjucks)$/,
-                loader: 'njk-source-loader'
             }]
     },
     plugins: [
-
         new NjkAllFiles().init(),
         new WatchExternalFilesPlugin({
             files: [
