@@ -5,50 +5,71 @@ import readline from "readline";
 export default class CliGenerator {
     constructor() {}
 
+    componentFilesGenerate(name, extns, dir) {
+        if (extns.length === 3) {
+            const dirCreatingStream =  new Promise((resolve, reject) => {
+                this.createDir(name, dir);
+                resolve();
+            });
+
+            dirCreatingStream.then(() => {
+                extns.forEach((ext) => {
+                    this.createFiles(name, ext, dir)
+                });
+            });
+        } else if (!fs.existsSync(path.resolve(__dirname, `../src/${dir}s/${name}/`))) {
+            const dirCreatingStream =  new Promise((resolve, reject) => {
+                this.createDir(name, dir);
+                resolve();
+            });
+
+            dirCreatingStream.then(() => {
+                extns.forEach((ext) => {
+                    this.createFiles(name, ext, dir)
+                });
+            });
+        } else {
+            extns.forEach((ext) => {
+                this.createFiles(name, ext, dir)
+            });
+        }
+    }
+
     filesGenerate(extns, dir = 'component') {
         const rl = readline.createInterface({
             input: process.stdin,
             output: process.stdout
         });
 
-        rl.question(`Enter ${dir}\`s name: `, (name) => {
-            if (!fs.existsSync(path.resolve(__dirname, `../src/components/`))) {
-                fs.mkdir(path.resolve(__dirname, `../src/components/`), null, () => {
-                    console.log(`Directory components was created`);
-                });
-            }
-
-            if (extns.length === 3) {
-               const dirCreatingStream =  new Promise((resolve, reject) => {
-                   this.createDir(name, dir);
-                   resolve();
-                });
-
-                dirCreatingStream.then(() => {
-                    extns.forEach((ext) => {
-                        this.createFiles(name, ext, dir)
-                    });
-                });
-            }
-            else if (!fs.existsSync(path.resolve(__dirname, `../src/${dir}s/${name}/`))) {
-                    const dirCreatingStream =  new Promise((resolve, reject) => {
-                        this.createDir(name, dir);
+        const creatingHandler = (name) => {
+         if (!fs.existsSync(path.resolve(__dirname, `../src/${dir}s/`))) {
+                const componentsDirCreatingStream = new Promise((resolve, reject) => {
+                    fs.mkdir(path.resolve(__dirname, `../src/${dir}s/`), null, () => {
+                        console.log(`Directory ${dir}s was created`);
                         resolve();
                     });
+                });
 
-                    dirCreatingStream.then(() => {
-                        extns.forEach((ext) => {
-                            this.createFiles(name, ext, dir)
-                        });
-                    });
+             componentsDirCreatingStream.then(() => this.componentFilesGenerate(name, extns, dir));
+         } else {
+             this.componentFilesGenerate(name, extns, dir);
+         }
+        };
+
+        const askQuestion = () => {
+            rl.question(`Enter ${dir}\`s name: `, (name) => {
+                name = name.trim().replace(/\s/g, '-');
+                if (!name.length) {
+                    console.error('Please enter the name');
+                    askQuestion();
                 } else {
-                    extns.forEach((ext) => {
-                        this.createFiles(name, ext, dir)
-                    });
+                    creatingHandler(name);
+                    rl.close();
                 }
+            });
+        };
 
-            rl.close();
-        });
+        askQuestion();
     };
 
     createFiles(name, ext, dir) {

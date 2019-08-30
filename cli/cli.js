@@ -25,29 +25,33 @@ const cliGenerator = new CliGenerator();
 class Cli {
     constructor() {}
 
+    generatePartialOptions(options, handler) {
+        params.multiSelect = true;
+        this.generateSubOptions(['Template', 'Styles', 'Js functionality'], (items) => {
+            const extStream = new Promise((resolve, reject) => {
+                let exts = [];
+
+                items.forEach((entry) => {
+                    entry.text.toLowerCase() === 'template' ? exts.push('njk') :
+                        entry.text.toLowerCase() === 'styles' ? exts.push('scss') :
+                            exts.push('ts');
+                });
+                resolve(exts);
+            });
+
+            extStream.then(exts => {
+                !exts.length ? (console.log('Chose files'), this.generatePartialOptions()) : cliGenerator.filesGenerate(exts);
+            });
+        })
+    }
+
     generateSubOptions(options, handler = (items) => {
         if (items[0].text.toLowerCase() === 'component') {
             this.generateSubOptions(['All files', 'Partial'], (items) => {
-                if (items[0].text.toLowerCase() === 'partial') {
-                    params.multiSelect = true;
-                    this.generateSubOptions(['Template', 'Styles', 'Js functionality'], (items) => {
-                       const extStream = new Promise((resolve, reject) => {
-                           let exts = [];
-
-                           items.forEach((entry) => {
-                               entry.text.toLowerCase() === 'template' ? exts.push('njk') :
-                                   entry.text.toLowerCase() === 'styles' ? exts.push('scss') :
-                                       exts.push('ts');
-                           });
-                           resolve(exts);
-                       });
-
-                        extStream.then(exts => {
-                            cliGenerator.filesGenerate(exts);
-                        });
-                    })
-                } else {
-                    cliGenerator.filesGenerate(['njk', 'scss', 'ts']);
+                switch (items[0].text.toLowerCase()) {
+                    case 'partial': this.generatePartialOptions();
+                    break;
+                    default: cliGenerator.filesGenerate(['njk', 'scss', 'ts']);
                 }
             });
         } else {
