@@ -15,15 +15,75 @@ let params = {
     disableInput: true
 };
 
-const cancelHandler = (options) => {
-    console.log('Cancel list, ' + options.length + ' options selected');
-    process.exit(0);
-};
-
 const cliGenerator = new CliGenerator();
 
 class Cli {
-    constructor() {}
+    constructor(options = null) {
+        this.options = {
+            autoInit: true,
+            items: [
+                {
+                    name: 'Component',
+                    ext: null,
+                    subCategories: [
+                        {
+                            name: 'All files',
+                            ext: ['njk', 'scss', 'ts']
+                        },
+                        {
+                            name: 'Partial',
+                            ext: null,
+                            subCategories: [
+                                {
+                                    name: 'Template',
+                                    ext: ['njk']
+                                },
+                                {
+                                    name: 'Styles',
+                                    ext: ['scss']
+                                },
+                                {
+                                    name: 'Js functionality',
+                                    ext: ['ts']
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: 'Page',
+                    ext: ['njk'],
+                }
+            ]
+        };
+
+        if (options instanceof Object) {
+           Object.assign(this.options, options);
+        }
+
+        this.checkBeforeInit();
+    }
+
+    checkBeforeInit() {
+        if (this.options.autoInit) {
+            this.init();
+        }
+    }
+
+    getItemsNames () {
+        let names = [];
+
+        [...this.options.items].forEach(entry => {
+            names.push(entry.name);
+        });
+
+        return names;
+    }
+
+    cancelHandler (options) {
+        console.log('Cancel list, ' + options.length + ' options selected');
+        process.exit(0);
+    }
 
     generatePartialOptions(options, handler) {
         params.multiSelect = true;
@@ -49,9 +109,11 @@ class Cli {
         if (items[0].text.toLowerCase() === 'component') {
             this.generateSubOptions(['All files', 'Partial'], (items) => {
                 switch (items[0].text.toLowerCase()) {
-                    case 'partial': this.generatePartialOptions();
-                    break;
-                    default: cliGenerator.filesGenerate(['njk', 'scss', 'ts']);
+                    case 'partial':
+                        this.generatePartialOptions();
+                        break;
+                    default:
+                        cliGenerator.filesGenerate(['njk', 'scss', 'ts']);
                 }
             });
         } else {
@@ -70,7 +132,7 @@ class Cli {
             handler(items);
         });
 
-        list.on('cancel', cancelHandler);
+        list.on('cancel', this.cancelHandler);
     }
 
     init() {
@@ -79,4 +141,3 @@ class Cli {
 }
 
 const cli = new Cli();
-cli.init();
