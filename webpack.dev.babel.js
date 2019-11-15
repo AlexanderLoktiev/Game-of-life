@@ -7,7 +7,7 @@ module.exports = merge(common, {
     devtool: 'inline-source-map',
     devServer: {
         contentBase: path.join(__dirname, 'build/pages'),
-        hot: true,
+        hot: false,
         writeToDisk: true,
         watchContentBase: true,
         open: true,
