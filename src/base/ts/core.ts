@@ -1,6 +1,5 @@
-// import $ from 'jquery';
+import Game from './game';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const test = 'test';
-    console.log('DOMContentLoaded');
+    const game = new Game();
 });

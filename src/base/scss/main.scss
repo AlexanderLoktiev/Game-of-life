@@ -1,6 +1,23 @@
+$black: #000;
+$white: #fff;
+$green: #00fe39;
+
+html,
 body {
-  //&,
-  //& * {
-  //  color: red;
-  //}
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $black;
+}
+
+#scene {
+  border: 0.2em solid $green;
 }
