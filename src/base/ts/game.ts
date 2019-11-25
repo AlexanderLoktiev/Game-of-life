@@ -56,6 +56,7 @@ export default class Game {
     initMatrix() {
         for (let i = 0; i < this.squaresInRow; i++) {
             this.matrix[i] = [];
+
             for (let j = 0; j < this.squaresInColumn; j++) {
                 this.matrix[i][j] = Math.random() < 0.9 ? 0 : 1;
             }
@@ -73,13 +74,22 @@ export default class Game {
         });
     }
 
+    changeCellState(cell) {
+         cell = !cell;
+        console.log(cell);
+    }
+
     initEvents() {
         if (this.canvas) {
             this.canvas.addEventListener('click', e => {
-                console.log(e);
+                console.log(Math.ceil(e.offsetX / this.options.squareSize) - 1, Math.ceil(e.offsetY / this.options.squareSize) - 1);
+                // console.log(, );
+                this.changeCellState(this.matrix[Math.ceil(e.offsetX / this.options.squareSize) - 1][Math.ceil(e.offsetY / this.options.squareSize) - 1]);
+                this.ctx.fillRect( (Math.ceil(e.offsetX / this.options.squareSize) - 1) * this.options.squareSize, (Math.ceil(e.offsetY / this.options.squareSize) - 1) * this.options.squareSize, this.options.squareSize, this.options.squareSize);
             });
         }
     }
+
 
     init() {
         this.getContext();
