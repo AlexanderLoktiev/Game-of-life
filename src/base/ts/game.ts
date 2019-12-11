@@ -19,37 +19,37 @@ export default class Game {
         this.init();
     }
 
-    getContext() {
+    private getContext() {
         const ctx = this.canvas ? this.ctx = this.canvas.getContext('2d') : null;
         this.ctx.fillStyle = '#00fe39';
     }
 
-    getCanvasDimensions() {
+    public getCanvasDimensions() {
         const dimensions = this.canvas ? (
             this.canvasWidth = this.canvas.width,
                 this.canvasHeight = this.canvas.height
         ) : null;
     }
 
-    getQuantitySquaresInRow() {
+    public getQuantitySquaresInRow() {
         this.squaresInRow = this.canvasWidth / this.options.squareSize;
     }
 
-    getQuantitySquaresInColumn() {
+    public getQuantitySquaresInColumn() {
         this.squaresInColumn = this.canvasHeight / this.options.squareSize;
     }
 
-    initMatrix() {
+    public initMatrix(isClear = false) {
         for (let i = 0; i < this.squaresInRow; i++) {
             this.matrix[i] = [];
 
             for (let j = 0; j < this.squaresInColumn; j++) {
-                this.matrix[i][j] = Math.random() < 0.9 ? 0 : 1;
+                this.matrix[i][j] = isClear ? 0 : Math.random() < 0.9 ? 0 : 1;
             }
         }
     }
 
-    clearMatrix() {
+    public clearMatrix() {
         for (let i = 0; i < this.squaresInRow; i++) {
             for (let j = 0; j < this.squaresInColumn; j++) {
                 this.matrix[i][j] = 0;
@@ -57,37 +57,58 @@ export default class Game {
         }
     }
 
-    paintScene() {
+    private paintScene() {
         this.matrix.forEach((row, rowKey) => {
             row.forEach((column, columnKey) => {
                 column !== 0 ? (
-                        this.ctx.fillRect(rowKey * this.options.squareSize, columnKey * this.options.squareSize, this.options.squareSize, this.options.squareSize)
+                    this.ctx.fillRect(rowKey * this.options.squareSize, columnKey * this.options.squareSize, this.options.squareSize, this.options.squareSize)
                 ) : (
-                        this.ctx.clearRect(rowKey * this.options.squareSize, columnKey * this.options.squareSize, this.options.squareSize, this.options.squareSize)
+                    this.ctx.clearRect(rowKey * this.options.squareSize, columnKey * this.options.squareSize, this.options.squareSize, this.options.squareSize)
                 );
             });
         });
     }
 
-    changeCellState(cell) {
-        cell = !cell;
-        console.log(cell);
+    private checkNeighbours() {
+
     }
 
-    initRandomOrganisms() {
+    private changeCellState(cellPositions) {
+        const [col, row] = cellPositions;
+        this.matrix[row][col] = this.matrix[row][col] === 0 ? 1 : 0;
+        return this.matrix;
+    }
+
+    public initRandomOrganisms() {
         this.clearMatrix();
         this.initMatrix();
         this.paintScene();
     }
 
-    initEvents() {
+    private getColRowPositions(el: MouseEvent, callback?) {
+        // console.log(typeof el);
+        const colRowPositions = [Math.ceil(el.offsetX / this.options.squareSize) - 1, Math.ceil(el.offsetY / this.options.squareSize) - 1];
+        const miodifiedColRowPositions = callback ? callback(colRowPositions) : null;
+        return miodifiedColRowPositions ? miodifiedColRowPositions : colRowPositions;
+    }
+
+    private initEvents() {
         const btnRandomOrganisms = document.querySelector('.random-organisms');
 
         if (this.canvas) {
             this.canvas.addEventListener('click', e => {
-                console.log(Math.ceil(e.offsetX / this.options.squareSize) - 1, Math.ceil(e.offsetY / this.options.squareSize) - 1);
-                this.changeCellState(this.matrix[Math.ceil(e.offsetX / this.options.squareSize) - 1][Math.ceil(e.offsetY / this.options.squareSize) - 1]);
-                this.ctx.fillRect((Math.ceil(e.offsetX / this.options.squareSize) - 1) * this.options.squareSize, (Math.ceil(e.offsetY / this.options.squareSize) - 1) * this.options.squareSize, this.options.squareSize, this.options.squareSize);
+                const colRowPositions = this.getColRowPositions(e);
+                const state = this.changeCellState(colRowPositions);
+
+                const colRowSquare = this.getColRowPositions(e, colRow => {
+                    const filledItem = colRow.map(item => {
+                        return item * this.options.squareSize;
+                    });
+
+                    return filledItem;
+                });
+
+                this.ctx.fillRect(...colRowSquare, this.options.squareSize, this.options.squareSize);
             });
         }
 
@@ -99,13 +120,12 @@ export default class Game {
         }
     }
 
-
-    init() {
+    public init() {
         this.getContext();
         this.getCanvasDimensions();
         this.getQuantitySquaresInRow();
         this.getQuantitySquaresInColumn();
-        this.initMatrix();
+        this.initMatrix(true);
         this.initEvents();
     }
 }
