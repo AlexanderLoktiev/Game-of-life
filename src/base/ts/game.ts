@@ -7,6 +7,7 @@ export default class Game {
     public squaresInRow: number | null;
     public squaresInColumn: number | null;
     private matrix: any[] = [];
+    private newMatrix: any[] = [];
 
     constructor(canvasId = 'scene',
                 options = {
@@ -29,50 +30,49 @@ export default class Game {
             this.canvasWidth = this.canvas.width,
                 this.canvasHeight = this.canvas.height
         ) : null;
+
+        return dimensions;
     }
 
     public getQuantitySquaresInRow() {
-        this.squaresInRow = this.canvasWidth / this.options.squareSize;
+        this.squaresInRow = Math.round(this.canvasHeight / this.options.squareSize);
     }
 
     public getQuantitySquaresInColumn() {
-        this.squaresInColumn = this.canvasHeight / this.options.squareSize;
+        this.squaresInColumn = Math.round(this.canvasWidth / this.options.squareSize);
     }
 
-    public initMatrix(isClear = false) {
+    private initMatrix(isClear = false, matrix = this.matrix) {
         for (let i = 0; i < this.squaresInRow; i++) {
-            this.matrix[i] = [];
+            matrix[i] = [];
 
             for (let j = 0; j < this.squaresInColumn; j++) {
-                this.matrix[i][j] = isClear ? 0 : Math.random() < 0.9 ? 0 : 1;
+                matrix[i][j] = isClear ? 0 : Math.random() < 0.9 ? 0 : 1;
             }
         }
     }
 
-    public clearMatrix() {
-        for (let i = 0; i < this.squaresInRow; i++) {
-            for (let j = 0; j < this.squaresInColumn; j++) {
-                this.matrix[i][j] = 0;
+    public clearMatrix(matrix = this.matrix) {
+        if (matrix.length) {
+            for (let i = 0; i < this.squaresInRow; i++) {
+                for (let j = 0; j < this.squaresInColumn; j++) {
+                    matrix[i][j] = 0;
+                }
             }
         }
     }
 
-    private paintScene() {
-        this.matrix.forEach((row, rowKey) => {
-            row.forEach((column, columnKey) => {
-                column !== 0 ? (
-                    this.ctx.fillRect(rowKey * this.options.squareSize, columnKey * this.options.squareSize, this.options.squareSize, this.options.squareSize)
+    private paintScene(matrix = this.matrix) {
+        for (let i = 0; i < this.squaresInRow; i++) {
+            for (let j = 0; j < this.squaresInColumn; j++) {
+                matrix[i][j] !== 0 ? (
+                    this.ctx.fillRect(j * this.options.squareSize, i * this.options.squareSize, this.options.squareSize, this.options.squareSize)
                 ) : (
-                    this.ctx.clearRect(rowKey * this.options.squareSize, columnKey * this.options.squareSize, this.options.squareSize, this.options.squareSize)
+                    this.ctx.clearRect(j * this.options.squareSize, i * this.options.squareSize, this.options.squareSize, this.options.squareSize)
                 );
-            });
-        });
+            }
+        }
     }
-
-    private checkNeighbours() {
-
-    }
-
     private changeCellState(cellPositions) {
         const [col, row] = cellPositions;
         this.matrix[row][col] = this.matrix[row][col] === 0 ? 1 : 0;
@@ -85,8 +85,45 @@ export default class Game {
         this.paintScene();
     }
 
+    private countNeighbours(matrix, i, j) {
+        let neighboursCount = 0;
+
+        // Edges handler
+        try {
+            const neighbours = [ matrix[i - 1][j - 1], matrix[i - 1][j], matrix[i - 1][j + 1], matrix[i][j - 1],
+                matrix[i][j + 1], matrix[i + 1][j - 1], matrix[i + 1][j], matrix[i + 1][j + 1] ];
+            neighbours.forEach(neighbour => {
+                const isAlive = neighbour ? neighboursCount++ : null;
+            });
+        } catch (e)  {
+            neighboursCount = neighboursCount;
+        }
+
+        return neighboursCount;
+    }
+
+    private setNewMatrixValues(matrix = this.matrix) {
+        for (let i = 0; i < this.squaresInRow; i++) {
+            for (let j = 0; j < this.squaresInColumn; j++) {
+                if (!matrix[i][j] && this.countNeighbours(matrix, i, j) === 3) {
+                    this.newMatrix[i][j] = 1;
+                } else if (matrix[i][j] && this.countNeighbours(matrix, i, j) === 2 ||
+                    matrix[i][j] && this.countNeighbours(matrix, i, j) === 3) {
+                    this.newMatrix[i][j] = 1;
+                }  else if (matrix[i][j] && this.countNeighbours(matrix, i, j) < 2 ||
+                    matrix[i][j] && this.countNeighbours(matrix, i, j) > 3) {
+                    this.newMatrix[i][j] = 0;
+                } else {
+                    this.newMatrix[i][j] = this.matrix[i][j];
+                }
+            }
+        }
+
+        this.matrix = this.newMatrix;
+        this.paintScene();
+    }
+
     private getColRowPositions(el: MouseEvent, callback?) {
-        // console.log(typeof el);
         const colRowPositions = [Math.ceil(el.offsetX / this.options.squareSize) - 1, Math.ceil(el.offsetY / this.options.squareSize) - 1];
         const miodifiedColRowPositions = callback ? callback(colRowPositions) : null;
         return miodifiedColRowPositions ? miodifiedColRowPositions : colRowPositions;
@@ -109,6 +146,7 @@ export default class Game {
                 });
 
                 this.ctx.fillRect(...colRowSquare, this.options.squareSize, this.options.squareSize);
+                this.countNeighbours(this.matrix, colRowPositions[1], colRowPositions[0]);
             });
         }
 
@@ -116,6 +154,8 @@ export default class Game {
             btnRandomOrganisms.addEventListener('click', e => {
                 e.preventDefault();
                 this.initRandomOrganisms();
+
+                setInterval(this.setNewMatrixValues.bind(this), 500);
             });
         }
     }
@@ -126,6 +166,7 @@ export default class Game {
         this.getQuantitySquaresInRow();
         this.getQuantitySquaresInColumn();
         this.initMatrix(true);
+        this.initMatrix(true, this.newMatrix);
         this.initEvents();
     }
 }
