@@ -7,6 +7,7 @@
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.babel.js",
     "build": "webpack --config webpack.prod.babel.js",
+    "deploy": "gh-pages -d build",
     "new": "node -r esm cli/cli.js"
   },
   "dependencies": {
@@ -23,6 +24,7 @@
     "esm": "^3.2.25",
     "file-loader": "^4.2.0",
     "fs-readdir-recursive": "^1.1.0",
+    "gh-pages": "^2.2.0",
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
     "html-withimg-loader": "^0.1.16",
