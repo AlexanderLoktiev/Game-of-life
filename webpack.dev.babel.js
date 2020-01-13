@@ -18,5 +18,9 @@ module.exports = merge(common, {
             ignored: ['build', 'node_modules']
         },
         port: 8080,
+        onListening: function (server) {
+            const port = server.listeningApp.address().port;
+            console.log('Listening on port:', port);
+        }
     }
 });

@@ -1,0 +1,24 @@
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .btn {
+    background-color: transparent;
+    border: 1px solid $green;
+    padding: 10px;
+    color: $green;
+    cursor: pointer;
+    transition: background-color 300ms;
+
+    &:hover,
+    &:focus {
+      background-color: rgba($green, 0.3);
+      outline: none;
+    }
+
+    &:not(:last-child) {
+      margin-right: 10px;
+    }
+  }
+}

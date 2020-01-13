@@ -4,8 +4,12 @@ export default class Game {
     public canvasWidth: any;
     public canvasHeight: any;
     public options: any;
+    private gameIsActive = false;
     public squaresInRow: number | null;
     public squaresInColumn: number | null;
+    private gameIntervalHandler: NodeJS.Timeout = null;
+    private gameSpeed: number | null = null;
+    private sliderRange: HTMLInputElement | null = document.querySelector('.slider-range');
     private matrix: any[] = [];
     private newMatrix: any[] = [];
 
@@ -38,6 +42,10 @@ export default class Game {
         this.squaresInRow = Math.round(this.canvasHeight / this.options.squareSize);
     }
 
+    private changeSpeed(val) {
+        this.gameSpeed = val * 4;
+    }
+
     public getQuantitySquaresInColumn() {
         this.squaresInColumn = Math.round(this.canvasWidth / this.options.squareSize);
     }
@@ -65,14 +73,19 @@ export default class Game {
     private paintScene(matrix = this.matrix) {
         for (let i = 0; i < this.squaresInRow; i++) {
             for (let j = 0; j < this.squaresInColumn; j++) {
-                matrix[i][j] !== 0 ? (
-                    this.ctx.fillRect(j * this.options.squareSize, i * this.options.squareSize, this.options.squareSize, this.options.squareSize)
-                ) : (
-                    this.ctx.clearRect(j * this.options.squareSize, i * this.options.squareSize, this.options.squareSize, this.options.squareSize)
-                );
+                this.paintSquare(i, j);
             }
         }
     }
+
+    private paintSquare(i, j) {
+        this.matrix[i][j] !== 0 ? (
+            this.ctx.fillRect(j * this.options.squareSize, i * this.options.squareSize, this.options.squareSize, this.options.squareSize)
+        ) : (
+            this.ctx.clearRect(j * this.options.squareSize, i * this.options.squareSize, this.options.squareSize, this.options.squareSize)
+        );
+    }
+
     private changeCellState(cellPositions) {
         const [col, row] = cellPositions;
         this.matrix[row][col] = this.matrix[row][col] === 0 ? 1 : 0;
@@ -90,28 +103,43 @@ export default class Game {
 
         // Edges handler
         try {
-            const neighbours = [ matrix[i - 1][j - 1], matrix[i - 1][j], matrix[i - 1][j + 1], matrix[i][j - 1],
-                matrix[i][j + 1], matrix[i + 1][j - 1], matrix[i + 1][j], matrix[i + 1][j + 1] ];
-            neighbours.forEach(neighbour => {
-                const isAlive = neighbour ? neighboursCount++ : null;
-            });
-        } catch (e)  {
-            neighboursCount = neighboursCount;
-        }
+            const neighbours = [
+                matrix[i - 1][j - 1],
+                matrix[i][j - 1],
+                matrix[i + 1][j - 1],
+                matrix[i - 1][j],
+                matrix[i + 1][j],
+                matrix[i - 1][j + 1],
+                matrix[i][j + 1],
+                matrix[i + 1][j + 1]
+            ];
 
+            // console.log(`Col: ${j} : row: ${i}`);
+            neighbours.forEach((neighbour, key) => {
+                // console.log(neighbour);
+                const isAlive = neighbour ? neighboursCount++ : null;
+                // console.log(`${key} : ${isAlive}`);
+            });
+            // console.log('====================');
+        } catch (e)  {
+        }
         return neighboursCount;
     }
 
-    private setNewMatrixValues(matrix = this.matrix) {
+    // TODO: create changeGameState handler
+    private changeGameState() {
+        this.gameIsActive != this.gameIsActive;
+    }
+
+    private setNewMatrixValues() {
         for (let i = 0; i < this.squaresInRow; i++) {
             for (let j = 0; j < this.squaresInColumn; j++) {
-                if (!matrix[i][j] && this.countNeighbours(matrix, i, j) === 3) {
+                const neighboursQuantity = this.countNeighbours(this.matrix, i, j);
+
+                if (this.matrix[i][j] === 0 && neighboursQuantity === 3) {
                     this.newMatrix[i][j] = 1;
-                } else if (matrix[i][j] && this.countNeighbours(matrix, i, j) === 2 ||
-                    matrix[i][j] && this.countNeighbours(matrix, i, j) === 3) {
-                    this.newMatrix[i][j] = 1;
-                }  else if (matrix[i][j] && this.countNeighbours(matrix, i, j) < 2 ||
-                    matrix[i][j] && this.countNeighbours(matrix, i, j) > 3) {
+                } else if (this.matrix[i][j] && neighboursQuantity < 2 ||
+                    this.matrix[i][j] && neighboursQuantity > 3) {
                     this.newMatrix[i][j] = 0;
                 } else {
                     this.newMatrix[i][j] = this.matrix[i][j];
@@ -119,8 +147,9 @@ export default class Game {
             }
         }
 
-        this.matrix = this.newMatrix;
+        this.matrix = [...this.newMatrix];
         this.paintScene();
+        this.initMatrix(true, this.newMatrix);
     }
 
     private getColRowPositions(el: MouseEvent, callback?) {
@@ -131,6 +160,8 @@ export default class Game {
 
     private initEvents() {
         const btnRandomOrganisms = document.querySelector('.random-organisms');
+        const btnStartGame = document.querySelector('.start');
+        const btnStopGame = document.querySelector('.stop');
 
         if (this.canvas) {
             this.canvas.addEventListener('click', e => {
@@ -145,7 +176,8 @@ export default class Game {
                     return filledItem;
                 });
 
-                this.ctx.fillRect(...colRowSquare, this.options.squareSize, this.options.squareSize);
+                const eventTargetPos = colRowSquare.map(item => item / this.options.squareSize);
+                this.paintSquare(eventTargetPos[1], eventTargetPos[0]);
                 this.countNeighbours(this.matrix, colRowPositions[1], colRowPositions[0]);
             });
         }
@@ -154,8 +186,30 @@ export default class Game {
             btnRandomOrganisms.addEventListener('click', e => {
                 e.preventDefault();
                 this.initRandomOrganisms();
+            });
+        }
 
-                setInterval(this.setNewMatrixValues.bind(this), 500);
+
+        if (this.canvas && this.sliderRange) {
+            this.changeSpeed(this.sliderRange.value);
+
+           this.sliderRange.addEventListener('change', e => {
+                e.preventDefault();
+                this.changeSpeed((e.target as HTMLInputElement).value);
+            });
+        }
+
+        if (this.canvas && btnStartGame) {
+            btnStartGame.addEventListener('click', e => {
+                e.preventDefault();
+                this.gameIntervalHandler = setInterval(this.setNewMatrixValues.bind(this), this.gameSpeed);
+            });
+        }
+
+        if (this.canvas && btnStopGame) {
+            btnStopGame.addEventListener('click', e => {
+                e.preventDefault();
+                const gameIntervalHandlerCanceling = this.gameIntervalHandler ? clearTimeout(this.gameIntervalHandler) : null;
             });
         }
     }

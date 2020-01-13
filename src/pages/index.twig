@@ -1,9 +1,17 @@
 {% extends '../base/templates/page.twig' %}
 
 {% block content %}
-    <canvas id="scene" width="1000" height="600"></canvas>
+    <main>
+        <canvas id="scene" width="1000" height="600"></canvas>
 
-    <div class="buttons">
-        <button class="random-organisms">Init random organisms</button>
-    </div>
+        <section class="buttons">
+            <button class="btn random-organisms">Init random organisms</button>
+            <button class="btn start">Start</button>
+            <button class="btn stop">Stop</button>
+        </section>
+
+        <section class="range-area">
+            <input type="range" min="1" max="100" value="50" class="slider-range">
+        </section>
+    </main>
 {% endblock %}
