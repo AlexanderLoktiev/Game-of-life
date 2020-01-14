@@ -1,6 +1,12 @@
 .range-area {
   max-width: 200px;
   margin: 10px auto;
+  opacity: 1;
+  transition: opacity 300ms;
+
+  &.-is-disable {
+    opacity: 0.3;
+  }
 }
 
 .slider-range {

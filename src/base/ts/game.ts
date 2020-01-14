@@ -5,6 +5,7 @@ export default class Game {
     public canvasHeight: any;
     public options: any;
     private gameIsActive = false;
+    private customEvent: Event | null = null;
     public squaresInRow: number | null;
     public squaresInColumn: number | null;
     private gameIntervalHandler: NodeJS.Timeout = null;
@@ -114,21 +115,19 @@ export default class Game {
                 matrix[i + 1][j + 1]
             ];
 
-            // console.log(`Col: ${j} : row: ${i}`);
             neighbours.forEach((neighbour, key) => {
-                // console.log(neighbour);
                 const isAlive = neighbour ? neighboursCount++ : null;
-                // console.log(`${key} : ${isAlive}`);
             });
-            // console.log('====================');
         } catch (e)  {
         }
         return neighboursCount;
     }
 
-    // TODO: create changeGameState handler
-    private changeGameState() {
-        this.gameIsActive != this.gameIsActive;
+    private changeGameState(state) {
+        if (this.customEvent) {
+            this.gameIsActive = state;
+            document.dispatchEvent(this.customEvent);
+        }
     }
 
     private setNewMatrixValues() {
@@ -162,6 +161,21 @@ export default class Game {
         const btnRandomOrganisms = document.querySelector('.random-organisms');
         const btnStartGame = document.querySelector('.start');
         const btnStopGame = document.querySelector('.stop');
+
+        // Custom event creation
+        this.customEvent = new Event('onGameStateChange');
+
+        // Custom event subscription
+
+        document.addEventListener('onGameStateChange', () => {
+            if (this.sliderRange && this.gameIsActive) {
+                this.sliderRange.closest('.range-area').classList.add('-is-disable');
+                this.sliderRange.disabled = true;
+            } else if (this.sliderRange) {
+                this.sliderRange.closest('.range-area').classList.remove('-is-disable');
+                this.sliderRange.disabled = false;
+            }
+        });
 
         if (this.canvas) {
             this.canvas.addEventListener('click', e => {
@@ -203,6 +217,7 @@ export default class Game {
             btnStartGame.addEventListener('click', e => {
                 e.preventDefault();
                 this.gameIntervalHandler = setInterval(this.setNewMatrixValues.bind(this), this.gameSpeed);
+                this.changeGameState(true);
             });
         }
 
@@ -210,6 +225,7 @@ export default class Game {
             btnStopGame.addEventListener('click', e => {
                 e.preventDefault();
                 const gameIntervalHandlerCanceling = this.gameIntervalHandler ? clearTimeout(this.gameIntervalHandler) : null;
+                this.changeGameState(false);
             });
         }
     }
