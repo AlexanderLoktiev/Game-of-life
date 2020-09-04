@@ -32,7 +32,7 @@
     "laravel-mix-twig-to-html": "^1.2.0",
     "mini-css-extract-plugin": "^0.8.0",
     "njk-html-loader": "^1.2.0",
-    "node-sass": "^4.12.0",
+    "node-sass": "^4.13.1",
     "nunjucks": "^3.2.0",
     "nunjucks-html-loader": "^1.1.0",
     "nunjucks-isomorphic-loader": "^2.0.2",
